@@ -1,7 +1,9 @@
+import GithubLoginButton from "../component/GithubLoginButton";
+
 function GithubLogin(): JSX.Element {
   return (
     <div>
-      <button>Github Login</button>
+      <GithubLoginButton />
     </div>
   );
 }
