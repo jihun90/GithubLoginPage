@@ -1,5 +1,5 @@
 import { useSearchParams } from "react-router-dom";
-import { TypeOfUseSearchParam, GITHUB_ACCESS_TOKEN_URL } from "../defCommon";
+import { TypeOfUseSearchParam } from "../defCommon";
 import axios from "axios";
 import { useEffect } from "react";
 
@@ -13,11 +13,21 @@ function GithubInfo(): JSX.Element {
   useEffect(() => {
     (async () => {
       await axios
-        .post(GITHUB_ACCESS_TOKEN_URL, {
-          client_id: GITHUB_CLIENT_ID,
-          client_secret: GITHUB_CLIENT_SECRETS,
-          code: code,
-        })
+        .post(
+          import.meta.env.VITE_GITHUB_ACCESS_TOKEN_URL,
+          {
+            client_id: GITHUB_CLIENT_ID,
+            client_secret: GITHUB_CLIENT_SECRETS,
+            code: code,
+          },
+          {
+            baseURL: import.meta.env.BASE_URL,
+            headers: {
+              "Content-Type": "application/json",
+            },
+            withCredentials: true,
+          }
+        )
         .then((respones) => {
           console.log(respones);
           if (respones.status === 200) {
