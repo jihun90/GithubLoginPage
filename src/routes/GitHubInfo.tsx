@@ -1,10 +1,11 @@
 import { useSearchParams } from "react-router-dom";
-import { TypeOfUseSearchParam } from "../defCommon";
-import axios from "axios";
-import { useEffect } from "react";
+import { TypeOfUseSearchParam, TypeOfUseState } from "../defCommon";
+import axios, { AxiosResponse } from "axios";
+import { useEffect, useState } from "react";
 
 const GITHUB_CLIENT_ID: string = import.meta.env.VITE_GITHUB_CLIENT_ID;
 const GITHUB_CLIENT_SECRETS: string = import.meta.env.VITE_GITHUB_CLIENT_SECRETS;
+const GITHUB_ACCESS_TOKEN_URL: string = import.meta.env.VITE_GITHUB_ACCESS_TOKEN_URL;
 
 interface GithubClientInfo {
   client_id: string;
@@ -21,15 +22,23 @@ interface GithubHeaders {
 }
 
 function GithubInfo(): JSX.Element {
+  const [isLoading, setIsLoading]: TypeOfUseState<boolean> = useState(true);
   const [searchParams]: TypeOfUseSearchParam = useSearchParams();
   const code: string | null = searchParams.get("code");
 
-  const ClientInfo: GithubClientInfo = {
-    client_id: GITHUB_CLIENT_ID,
-    client_secret: GITHUB_CLIENT_SECRETS,
-    code: code,
-  };
+  useEffect(() => {
+    const clientInfo: GithubClientInfo = {
+      client_id: GITHUB_CLIENT_ID,
+      client_secret: GITHUB_CLIENT_SECRETS,
+      code: code,
+    };
+    PostClientInfo(clientInfo).then(() => setIsLoading(false));
+  }, [code]);
 
+  return isLoading ? <div>Loading...</div> : <div>foo</div>;
+}
+
+async function PostClientInfo(clientInfo: GithubClientInfo): Promise<JSON> {
   const headers: GithubHeaders = {
     baseURL: import.meta.env.BASE_URL,
     headers: {
@@ -38,25 +47,9 @@ function GithubInfo(): JSX.Element {
     withCredentials: true,
   };
 
-  useEffect(() => {
-    (async () => {
-      await axios
-        .post(import.meta.env.VITE_GITHUB_ACCESS_TOKEN_URL, ClientInfo, headers)
-        .then((respones) => {
-          console.log(respones);
-          if (respones.status === 200) {
-            const json: JSON = respones.data;
-            if ("access_token" in json) {
-              console.log(json["access_token"]);
-            }
-          }
-        })
-        .catch((response) => console.log("[error]" + response));
-    })(),
-      [];
-  });
+  const result: AxiosResponse<JSON, JSON> = await axios.post(GITHUB_ACCESS_TOKEN_URL, clientInfo, headers);
 
-  return <div>Loading...</div>;
+  return result.data;
 }
 
 export default GithubInfo;

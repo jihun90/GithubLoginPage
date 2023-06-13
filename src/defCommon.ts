@@ -1,3 +1,4 @@
+import React from "react";
 import { SetURLSearchParams } from "react-router-dom";
 
 export type TypeOfUseState<T> = [T, React.Dispatch<React.SetStateAction<T>>];
