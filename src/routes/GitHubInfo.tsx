@@ -21,10 +21,21 @@ interface GithubHeaders {
   withCredentials: boolean;
 }
 
+interface GithubOauthInfo {
+  access_token: string;
+  scope: string;
+  token_type: string;
+}
+
+function isGithubOauthInfo(data: unknown): data is GithubOauthInfo {
+  return (data as GithubOauthInfo).access_token !== undefined;
+}
+
 function GithubInfo(): JSX.Element {
   const [isLoading, setIsLoading]: TypeOfUseState<boolean> = useState(true);
   const [searchParams]: TypeOfUseSearchParam = useSearchParams();
   const code: string | null = searchParams.get("code");
+  const [acessTocken, setAcessTocken]: TypeOfUseState<string> = useState("");
 
   useEffect(() => {
     const clientInfo: GithubClientInfo = {
@@ -32,10 +43,15 @@ function GithubInfo(): JSX.Element {
       client_secret: GITHUB_CLIENT_SECRETS,
       code: code,
     };
-    PostClientInfo(clientInfo).then(() => setIsLoading(false));
+    PostClientInfo(clientInfo).then((respones) => {
+      if (isGithubOauthInfo(respones)) {
+        setAcessTocken(respones.access_token);
+        setIsLoading(false);
+      }
+    });
   }, [code]);
 
-  return isLoading ? <div>Loading...</div> : <div>foo</div>;
+  return isLoading ? <div>Loading...</div> : <div>{acessTocken}</div>;
 }
 
 async function PostClientInfo(clientInfo: GithubClientInfo): Promise<JSON> {
