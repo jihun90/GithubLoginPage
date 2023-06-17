@@ -1,7 +1,7 @@
 import { useSearchParams } from "react-router-dom";
 import { TypeOfUseSearchParam, TypeOfUseState } from "../defCommon";
 import axios, { AxiosResponse } from "axios";
-import { useEffect, useState } from "react";
+import { Context, createContext, useEffect, useState } from "react";
 
 const GITHUB_CLIENT_ID: string = import.meta.env.VITE_GITHUB_CLIENT_ID;
 const GITHUB_CLIENT_SECRETS: string = import.meta.env.VITE_GITHUB_CLIENT_SECRETS;
@@ -11,6 +11,7 @@ interface GithubClientInfo {
   client_id: string;
   client_secret: string;
   code: string | null;
+  redict_url?: string;
 }
 
 interface GithubHeaders {
@@ -27,11 +28,19 @@ interface GithubOauthInfo {
   token_type: string;
 }
 
+const GithubOauthDefualtInfo: GithubOauthInfo = {
+  access_token: "",
+  scope: "",
+  token_type: "",
+};
+
+export const GithubOauthInfoContext: Context<GithubOauthInfo> = createContext<GithubOauthInfo>(GithubOauthDefualtInfo);
+
 function GithubInfo(): JSX.Element {
   const [isLoading, setIsLoading]: TypeOfUseState<boolean> = useState(true);
   const [searchParams]: TypeOfUseSearchParam = useSearchParams();
   const code: string | null = searchParams.get("code");
-  const [acessTocken, setAcessTocken]: TypeOfUseState<string> = useState("");
+  const [oauthInfo, setOauthInfo]: TypeOfUseState<GithubOauthInfo> = useState(GithubOauthDefualtInfo);
 
   useEffect(() => {
     const clientInfo: GithubClientInfo = {
@@ -41,13 +50,13 @@ function GithubInfo(): JSX.Element {
     };
     PostClientInfo(clientInfo).then((respones) => {
       if (IsGithubOauthInfo(respones)) {
-        setAcessTocken(respones.access_token);
+        setOauthInfo(respones);
         setIsLoading(false);
       }
     });
   }, [code]);
 
-  return isLoading ? <div>Loading...</div> : <div>{acessTocken}</div>;
+  return isLoading ? <div>Loading...</div> : <div>{oauthInfo.access_token}</div>;
 }
 
 function IsGithubOauthInfo(data: unknown): data is GithubOauthInfo {
