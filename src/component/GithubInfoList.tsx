@@ -1,4 +1,5 @@
 import { GithubOauthInfo, UseGithubOauthInfoState } from "../contexts/GithubOauthContext";
+
 function GithubInfoList() {
   const oauthInfo: GithubOauthInfo = UseGithubOauthInfoState();
 

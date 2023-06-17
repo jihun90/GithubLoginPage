@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { TypeOfUseSearchParam, TypeOfUseState } from "../defCommon";
 import axios, { AxiosResponse } from "axios";
-import GithubInfoList from "../component/GithubInfoList";
 import { IsGithubOauthInfo, UseGithubOauthInfoDispatch } from "../contexts/GithubOauthContext";
+import UserInfo from "../component/UserInfo";
 
 const GITHUB_CLIENT_ID: string = import.meta.env.VITE_GITHUB_CLIENT_ID;
 const GITHUB_CLIENT_SECRETS: string = import.meta.env.VITE_GITHUB_CLIENT_SECRETS;
@@ -44,7 +44,7 @@ function GithubInfo(): JSX.Element {
     });
   }, [code, setOauthInfo]);
 
-  return isLoading ? <div>Loading...</div> : <GithubInfoList />;
+  return isLoading ? <div>Loading...</div> : <UserInfo />;
 }
 
 async function PostClientInfo(clientInfo: GithubClientInfo): Promise<JSON> {
