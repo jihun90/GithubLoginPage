@@ -1,7 +1,9 @@
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { TypeOfUseSearchParam, TypeOfUseState } from "../defCommon";
 import axios, { AxiosResponse } from "axios";
-import { Context, createContext, useEffect, useState } from "react";
+import GithubInfoList from "../component/GithubInfoList";
+import { IsGithubOauthInfo, UseGithubOauthInfoDispatch } from "../contexts/GithubOauthContext";
 
 const GITHUB_CLIENT_ID: string = import.meta.env.VITE_GITHUB_CLIENT_ID;
 const GITHUB_CLIENT_SECRETS: string = import.meta.env.VITE_GITHUB_CLIENT_SECRETS;
@@ -22,26 +24,12 @@ interface GithubHeaders {
   withCredentials: boolean;
 }
 
-interface GithubOauthInfo {
-  access_token: string;
-  scope: string;
-  token_type: string;
-}
-
-const GithubOauthDefualtInfo: GithubOauthInfo = {
-  access_token: "",
-  scope: "",
-  token_type: "",
-};
-
-export const GithubOauthInfoContext: Context<GithubOauthInfo> = createContext<GithubOauthInfo>(GithubOauthDefualtInfo);
-
 function GithubInfo(): JSX.Element {
   const [isLoading, setIsLoading]: TypeOfUseState<boolean> = useState(true);
   const [searchParams]: TypeOfUseSearchParam = useSearchParams();
   const code: string | null = searchParams.get("code");
-  const [oauthInfo, setOauthInfo]: TypeOfUseState<GithubOauthInfo> = useState(GithubOauthDefualtInfo);
 
+  const setOauthInfo = UseGithubOauthInfoDispatch();
   useEffect(() => {
     const clientInfo: GithubClientInfo = {
       client_id: GITHUB_CLIENT_ID,
@@ -54,13 +42,9 @@ function GithubInfo(): JSX.Element {
         setIsLoading(false);
       }
     });
-  }, [code]);
+  }, [code, setOauthInfo]);
 
-  return isLoading ? <div>Loading...</div> : <div>{oauthInfo.access_token}</div>;
-}
-
-function IsGithubOauthInfo(data: unknown): data is GithubOauthInfo {
-  return (data as GithubOauthInfo).access_token !== undefined;
+  return isLoading ? <div>Loading...</div> : <GithubInfoList />;
 }
 
 async function PostClientInfo(clientInfo: GithubClientInfo): Promise<JSON> {

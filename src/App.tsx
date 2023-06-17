@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 // import { useState } from "react";
 import GithubLogin from "./routes/GithubLogin";
 import GithubInfo from "./routes/GitHubInfo";
+import { GithubOauthInfoProvider } from "./contexts/GithubOauthContext";
 function App() {
   // const [isLogin, setLogin]: TypeOfUseState<boolean> = useState<boolean>(false);
   return (
@@ -15,7 +16,11 @@ function App() {
         />
         <Route
           path={`/callback`}
-          element={<GithubInfo />}
+          element={
+            <GithubOauthInfoProvider>
+              <GithubInfo />
+            </GithubOauthInfoProvider>
+          }
         />
       </Routes>
     </Router>
