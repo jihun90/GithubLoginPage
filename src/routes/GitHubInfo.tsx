@@ -27,10 +27,6 @@ interface GithubOauthInfo {
   token_type: string;
 }
 
-function isGithubOauthInfo(data: unknown): data is GithubOauthInfo {
-  return (data as GithubOauthInfo).access_token !== undefined;
-}
-
 function GithubInfo(): JSX.Element {
   const [isLoading, setIsLoading]: TypeOfUseState<boolean> = useState(true);
   const [searchParams]: TypeOfUseSearchParam = useSearchParams();
@@ -44,7 +40,7 @@ function GithubInfo(): JSX.Element {
       code: code,
     };
     PostClientInfo(clientInfo).then((respones) => {
-      if (isGithubOauthInfo(respones)) {
+      if (IsGithubOauthInfo(respones)) {
         setAcessTocken(respones.access_token);
         setIsLoading(false);
       }
@@ -52,6 +48,10 @@ function GithubInfo(): JSX.Element {
   }, [code]);
 
   return isLoading ? <div>Loading...</div> : <div>{acessTocken}</div>;
+}
+
+function IsGithubOauthInfo(data: unknown): data is GithubOauthInfo {
+  return (data as GithubOauthInfo).access_token !== undefined;
 }
 
 async function PostClientInfo(clientInfo: GithubClientInfo): Promise<JSON> {
